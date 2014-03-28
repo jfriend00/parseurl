@@ -1,0 +1,93 @@
+Contains an object for parsing a URL into it's various pieces.  
+
+You can use this to either parse the URL and then be able to extract
+any particular piece of the URL.  Or, you can parse the URL, change
+one piece (like a query parameter) and then generate the new URL.
+
+For a sample URL:
+http://www.example.com:8001/log/index.html?parm=foo#start
+
+// main interface
+var u = new parseURL(url);
+
+// returns the last part of the domain
+u.getFinalDomain();			// example.com
+
+// returns the part of the domain in front of the subdomain
+// without trailing dot
+u.getSubDomain();			// www
+
+// returns the entire URL by putting all the pieces back together again
+u.getURL();
+
+// normally called by the constructor to parse a new URL into the instance variables
+u.parse(url);
+
+When you call .parse(url), it reinitializes the URL object and fills 
+all instance variables with new data from the new url - no carryover 
+from any previous url
+
+// Instance variables after parsing a URL
+// Any of these can be modified and then call .getURL() to get the new URL
+
+.protocol		
+	Example: "http"
+
+.port
+	Example: "8001"
+	Note: this is a string, not a number
+
+.domain
+	Example: "www.example.com"
+	Note: the full domain and sub-domain that was present in the URL
+
+.path
+	Example: "/log/index.html"
+	Note: everything after domain and before query or hash
+	.path is either empty or always starts with a /
+												
+.pathParts
+	Example: ["log", "index.html"]
+	read-only - generated URL is made from .path, not from pathParts
+
+.filename
+	Example: "index.html"
+	Note: last element of the path (whether it is a filename or not)
+
+.filebase
+	Example: "index"
+	Note: read-only - generated URL is made from .filename
+
+.extension
+	Example: "html"
+	Note: read-only - generated URL is made from .filename
+
+.query
+	Example: "parm=foo"
+	Note: read-only - generated URL is made from .queryObject
+
+.queryObject
+	Example: {"parm": "foo"}
+	Note: unordered, does not support multiple parameters with the same name
+
+.hash
+	Example: "start"
+
+It is assumed that any URL given to the object either in the constructor or .parse() is
+properly URI encoded.
+
+All instance variables are URI decoded.
+
+If you change any instance variables, you must set them in unencoded form (otherwise they will get
+encoded twice when you generate a URL).
+
+When getURL() is called and a new URL is constructed, all components are properly URI encoded.
+
+
+One very useful thing to do with this is to access or change query parameters
+because this code handles all the parsing and generation of the query parameters
+including proper URI encoding.
+
+var u = new parseURL(url);
+u.queryObject["parm"] = "hello";
+var newUrl = u.getURL();
