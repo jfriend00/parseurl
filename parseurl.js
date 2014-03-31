@@ -1,4 +1,8 @@
+"use strict";
 function parseURL(url) {
+    if (!(this instanceof parseURL)) {
+        return new parseURL(url);
+    }
     this.parse(url);
 }
 
@@ -43,6 +47,7 @@ parseURL.prototype = {
         }
         return this.domain.slice(0, this.domain.length - finalDomain.length - 1);
     },
+    // returns a fully formed URL based on the current values of the instance variables
     getURL: function() {
         var url = "";
         if (this.protocol) {
@@ -72,6 +77,56 @@ parseURL.prototype = {
         return url;
         
     },
+    // checks if any path component fully matches a string
+    // the ignoreCase argument is optional and defaults to false
+    containsPathComponent: function(pieceToLookFor, ignoreCase) {
+        var test;
+        if (ignoreCase) {
+            pieceToLookFor = pieceToLookFor.toLowerCase();
+        }
+        for (var i = 0; i < this.pathParts.length; i++) {
+            test = ignoreCase ? this.pathParts[i].toLowerCase() : this.pathParts[i];
+            if (pieceToLookFor === test) {
+                return true;
+            }
+        }
+        return false;
+    },
+    // gets the port number in use (returns a number, not a string)
+    // this can be either the port number specified in the URL or the implied
+    // port number according to the protocol
+    // only currently supports http and https for implied protocol numbers
+    getPortNum: function() {
+        var port = this.port;
+        if (!port) {
+            port = this.protocol === "https" ? "443" : "80";
+        }
+        return parseInt(port, 10);
+    },
+    // set or replace a query item
+    setQueryItem: function(key, value) {
+        this.queryObject[key] = value + "";
+        return this;
+    },
+    // remove a query item
+    // OK to specify a key that doesn't exist
+    removeQueryItem: function(key) {
+        delete this.queryObject[key];
+        return this;
+    },
+    setHash: function(hash) {
+        this.hash = hash;
+        return this;
+    },
+    // checks another URL to see if it's the same origin
+    // requires protocol, domain and port to be the same
+    isSameOrigin: function(otherURL) {
+        var other = new parseURL(otherURL), port1, port2;
+        return this.protocol === other.protocol && 
+            this.domain === other.domain &&
+            this.getPortNum() == other.getPortNum();
+    },
+    // parses the URL into it's components which are stored in instance variables for subsequent use
     parse: function(url) {
         this.init();
         if (!url) {
