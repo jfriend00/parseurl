@@ -44,7 +44,7 @@ for (var i = 0; i < testURLs.length; i++) {
 }
 
 // test the various parts
-urlObj = new parseURL("https://www.aaa.google.com:80/what%20ever/search.html/?aaa=bbb&ccc=ddd&eee=%20fff#jump12");
+urlObj = new parseURL("https://www.aaa.google.com:80/what%20ever/search.html/?aaa=bbb&ccc=ddd&eee=%20fff#jump12=test&jump33=set&jump44=hello%20kitty");
 assert(urlObj.queryObject["aaa"], "bbb");
 assert(urlObj.queryObject["eee"], " fff");
 assert(urlObj.protocol, "https");
@@ -56,7 +56,9 @@ assert(urlObj.getPortNum(), 80);
 assert(urlObj.isSameOrigin("https://www.aaa.google.com:80/index.html"), true);
 assert(urlObj.isSameOrigin("https://www.aaa.google.com/index.html"), false);
 assert(urlObj.isSameOrigin("https://www.google.com/index.html"), false);
-assert(urlObj.hash, "jump12");
+assert(urlObj.hash, "jump12=test&jump33=set&jump44=hello kitty");
+assert(urlObj.hashObject["jump12"], "test");
+assert(urlObj.hashObject["jump44"], "hello kitty");
 
 urlObj = new parseURL("https://www.google.com");
 assert(urlObj.isSameOrigin("https://www.google.com/index.html"), true);

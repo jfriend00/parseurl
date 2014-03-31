@@ -30,6 +30,25 @@ parseURL.prototype = {
         // queryObject assumes only one use of each key per URL
         this.queryObject = {};
         this.hash = "";
+        // if parseHash was truthy, then 
+        // this contains a dictionary of the xxx=yyy items in the hash value
+        this.hashObject = {};
+    },
+    // utility function, does not touch instance data
+    // parses xx==yy&talk=hello out of a string
+    // returns an object with key, value pairs
+    // used for query string parsing and any parms in the hash
+    parseParms: function(str) {
+        var pieces = str.split("&"), data = {}, i, parts;
+        // process each query pair
+        for (i = 0; i < pieces.length; i++) {
+            var parts = pieces[i].split("=");
+            if (parts.length < 2) {
+                parts.push("");
+            }
+            data[decodeURIComponent(parts[0])] = decodeURIComponent(parts[1]);
+        }
+        return data;
     },
     // gets the last part of the domain 
     // assumes there's always a .xxx at the end of the domain
@@ -145,7 +164,12 @@ parseURL.prototype = {
         index = temp.lastIndexOf("#");
         if (index !== -1) {
             // extract hash
-            this.hash = decodeURIComponent(temp.slice(index + 1));
+            var rawHash = temp.slice(index + 1);
+            this.hash = decodeURIComponent(rawHash);
+            // now see if there are any parameters inside the hash
+            if (rawHash.indexOf("=") >= 0) {
+                this.hashObject = this.parseParms(rawHash);
+            }            
             // remove hash from end of string
             temp = temp.slice(0, index);
         }
@@ -157,15 +181,7 @@ parseURL.prototype = {
             // remove query from temp
             temp = temp.slice(0, index);
             // split each query pair
-            pieces = this.query.split("&");
-            // process each query pair
-            for (i = 0; i < pieces.length; i++) {
-                parts = pieces[i].split("=");
-                if (parts.length < 2) {
-                    parts.push("");
-                }
-                this.queryObject[decodeURIComponent(parts[0])] = decodeURIComponent(parts[1]);
-            }
+            this.queryObject = this.parseParms(this.query);
         }
         // now find domain and port
         pieces = temp.split("/");
