@@ -42,7 +42,7 @@ parseURL.prototype = {
         var pieces = str.split("&"), data = {}, i, parts;
         // process each query pair
         for (i = 0; i < pieces.length; i++) {
-            var parts = pieces[i].split("=");
+            parts = pieces[i].split("=");
             if (parts.length < 2) {
                 parts.push("");
             }
@@ -140,7 +140,7 @@ parseURL.prototype = {
     // checks another URL to see if it's the same origin
     // requires protocol, domain and port to be the same
     isSameOrigin: function(otherURL) {
-        var other = new parseURL(otherURL), port1, port2;
+        var other = new parseURL(otherURL);
         return this.protocol === other.protocol && 
             this.domain === other.domain &&
             this.getPortNum() == other.getPortNum();
@@ -153,7 +153,7 @@ parseURL.prototype = {
         }
         this.origURL = url;
         // find protocol
-        var pieces = url.split("://"), index, item, temp, i, parts;
+        var pieces = url.split("://"), index, temp, i, parts;
         if (pieces.length > 1) {
             this.protocol = pieces[0].toLowerCase();
             temp = pieces[1];
@@ -198,19 +198,19 @@ parseURL.prototype = {
                 this.path = "/";
             } else {
                 // decode all path parts
-                for (var i = 0; i < pieces.length; i++) {
+                for (i = 0; i < pieces.length; i++) {
                     pieces[i] = decodeURI(pieces[i]);
                 }
                 this.pathParts = pieces.slice(0);
                 this.path = "/" + this.pathParts.join("/");
                 // filename is simply the last piece of the path (whether it's actually a filename or not)
                 this.filename = pieces.pop();
-                if (this.filename == "") {
+                if (this.filename === "") {
                     this.filename = pieces.pop();
                     if (!this.filename) this.filename = "";
                 }
                 this.filebase = this.filename;
-                var index = this.filename.lastIndexOf(".");
+                index = this.filename.lastIndexOf(".");
                 if (index !== -1) {
                     this.filebase = this.filename.slice(0, index);
                     this.extension = this.filename.slice(index + 1);
@@ -218,4 +218,4 @@ parseURL.prototype = {
             }
         }
     }
-}
+};
